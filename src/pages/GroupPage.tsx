@@ -11,7 +11,7 @@ import { Button } from '@redocly/theme/components/Button/Button';
 import { breakpoints } from '@redocly/theme/core/openapi';
 
 import { layoutAtom } from '../jotai/app.js';
-import { routingBasePathAtom } from '../jotai/store.js';
+import { globalOptionsAtom, routingBasePathAtom } from '../jotai/store.js';
 import { toElementId } from '../utils/url.js';
 import { SECTION_ATTR } from '../constants/openapi.js';
 import { panelKind } from '../types/common.js';
@@ -70,7 +70,9 @@ function GroupPageComponent({
   const { meta, children } = content || {};
   const translate = useSpecTranslate();
   const navigate = useNavigate();
-  const isExpanded = useIsExpanded(itemPath);
+  const { expandGroups } = useAtomValue(globalOptionsAtom);
+  const isExpandedByRoute = useIsExpanded(itemPath);
+  const isExpanded = expandGroups || isExpandedByRoute;
   const url = useNormalizeUrl(itemPath);
   const normalizeUrl = useNavigationUrlNormalizer();
   const isStacked = useAtomValue(layoutAtom) === LayoutVariant.STACKED;

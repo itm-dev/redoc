@@ -17,6 +17,7 @@ import {
 import {
   ASYNCAPI_DEFAULT_JSON_SAMPLES_DEPTH,
   DEFAULT_MAX_DISPLAYED_ENUM_VALUES,
+  DEFAULT_MAX_DISPLAYED_OPERATIONS,
   GENERATED_SAMPLES_MAX_DEPTH_DEFAULT,
   GRAPHQL_DEFAULT_FIELD_EXPAND_LEVEL,
   GRAPHQL_DEFAULT_JSON_SAMPLES_DEPTH,
@@ -44,6 +45,11 @@ export function normalizeOptions(rawOptions: RawApiDocsOptions): ApiDocsOptions 
     ),
     hideDownloadButtons: argValueToBoolean(options.hideDownloadButtons, false),
     hideLoading: argValueToBoolean(options.hideLoading, false),
+    hidePageActions: argValueToBoolean(options.hidePageActions, false),
+    maxDisplayedOperations:
+      argValueToExpandLevel(options.maxDisplayedOperations, DEFAULT_MAX_DISPLAYED_OPERATIONS) ??
+      DEFAULT_MAX_DISPLAYED_OPERATIONS,
+    expandGroups: argValueToBoolean(options.expandGroups, false),
     hideSchemaTitles: argValueToBoolean(options.hideSchemaTitles, false),
     hideSchemaPattern: argValueToBoolean(options.hideSchemaPattern, false),
     maxDisplayedEnumValues: argValueToNumber(

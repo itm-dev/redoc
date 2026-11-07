@@ -15,6 +15,8 @@ type TopLevelEntryViewProps = {
   shouldRenderOps: boolean;
   opsStartIndex?: number;
   renderEntrySection?: boolean;
+  /** Keeps every group open, so its operations render whatever the active route. */
+  expandGroups?: boolean;
 };
 
 function isGateOpen(gatePath: string, activePath: string | undefined): boolean {
@@ -34,10 +36,11 @@ export const TopLevelEntryView = memo(function TopLevelEntryView({
   shouldRenderOps,
   opsStartIndex = 0,
   renderEntrySection = true,
+  expandGroups = false,
 }: TopLevelEntryViewProps): ReactElement {
   // Only GROUP hubs gate descendants behind their open state; a channel (ITEM)
   // keeps all its operations mounted as scroll placeholders.
-  const gateByParent = entry.content.contentType === contentType.GROUP;
+  const gateByParent = !expandGroups && entry.content.contentType === contentType.GROUP;
   return (
     <>
       {renderEntrySection && (

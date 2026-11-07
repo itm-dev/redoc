@@ -28,6 +28,9 @@ describe('normalizeOptions', () => {
       const result = normalizeOptions(makeOpenApiRaw());
       expect(result.layout).toBe(LayoutVariant.THREE_PANEL);
       expect(result.hideDownloadButtons).toBe(false);
+      expect(result.hidePageActions).toBe(false);
+      expect(result.maxDisplayedOperations).toBe(8);
+      expect(result.expandGroups).toBe(false);
       expect(result.hideSchemaTitles).toBe(false);
       expect(result.sortRequiredPropsFirst).toBe(false);
       expect(result.onlyRequiredInSamples).toBe(false);
@@ -68,6 +71,20 @@ describe('normalizeOptions', () => {
       });
     });
 
+    it.each([
+      [3, 3],
+      ['5', 5],
+      ['all', Infinity],
+    ])('normalizes maxDisplayedOperations %j to %s', (value, expected) => {
+      const raw = makeOpenApiRaw({ maxDisplayedOperations: value } as Partial<RawApiDocsOptions>);
+      expect(normalizeOptions(raw).maxDisplayedOperations).toBe(expected);
+    });
+
+    it('normalizes expandGroups from an attribute string', () => {
+      const raw = makeOpenApiRaw({ expandGroups: 'true' } as unknown as Partial<RawApiDocsOptions>);
+      expect(normalizeOptions(raw).expandGroups).toBe(true);
+    });
+
     it('keeps pass-through options unchanged', () => {
       const result = normalizeOptions(
         makeOpenApiRaw({
@@ -91,6 +108,7 @@ describe('normalizeOptions', () => {
       const result = normalizeOptions(
         makeOpenApiRaw({
           hideDownloadButtons: true,
+          hidePageActions: true,
           hideSchemaTitles: true,
           onlyRequiredInSamples: true,
           sortRequiredPropsFirst: true,
@@ -98,6 +116,7 @@ describe('normalizeOptions', () => {
         }),
       );
       expect(result.hideDownloadButtons).toBe(true);
+      expect(result.hidePageActions).toBe(true);
       expect(result.hideSchemaTitles).toBe(true);
       expect(result.onlyRequiredInSamples).toBe(true);
       expect(result.sortRequiredPropsFirst).toBe(true);

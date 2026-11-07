@@ -40,20 +40,27 @@ import { withRouter } from './hoc/withRouter.js';
 import { withStoreProvider } from './hoc/withStoreProvider.js';
 import { useCodeHighlight } from './hooks/useCodeHighlight.js';
 import { useAgentTools } from './hooks/useAgentTools.js';
+import { createTranslationHooks, normalizeTranslations } from './utils/translations.js';
 
-const ThemeDataProvider = ({ children }: PropsWithChildren): ReactElement => {
-  const dataTransferObject = useMemo(
-    () =>
-      ({
-        hooks: {
-          useCodeHighlight,
-          // useThemeConfig dereferences useCurrentProduct once a config exists.
-          ...(STANDALONE_THEME_CONFIG ? { useCurrentProduct: () => undefined } : {}),
-        },
-        ...(STANDALONE_THEME_CONFIG ? { config: STANDALONE_THEME_CONFIG } : {}),
-      }) as ThemeDataTransferObject,
-    [],
-  );
+const ThemeDataProvider = ({
+  translations,
+  children,
+}: PropsWithChildren<{ translations?: unknown }>): ReactElement => {
+  const dataTransferObject = useMemo(() => {
+    const ownTranslations = normalizeTranslations(translations);
+    return {
+      hooks: {
+        useCodeHighlight,
+        // without them the theme falls back to hooks that always return the English defaults
+        ...(Object.keys(ownTranslations).length > 0
+          ? createTranslationHooks(ownTranslations)
+          : {}),
+        // useThemeConfig dereferences useCurrentProduct once a config exists.
+        ...(STANDALONE_THEME_CONFIG ? { useCurrentProduct: () => undefined } : {}),
+      },
+      ...(STANDALONE_THEME_CONFIG ? { config: STANDALONE_THEME_CONFIG } : {}),
+    } as ThemeDataTransferObject;
+  }, [translations]);
 
   return (
     <ThemeDataContext.Provider value={dataTransferObject}>{children}</ThemeDataContext.Provider>
@@ -115,7 +122,7 @@ const RedoclyApiDocsStandalone = compose(
   const layoutStyle = useMemo(() => getStandaloneLayoutStyle(options), [options]);
 
   return (
-    <ThemeDataProvider>
+    <ThemeDataProvider translations={rawOptions?.translations}>
       <TelemetryContext.Provider value={telemetry}>
         <PortalScope>
           <StandaloneLayout className={rootClassName} style={layoutStyle} suppressHydrationWarning>

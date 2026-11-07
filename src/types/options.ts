@@ -13,6 +13,7 @@ import type { ProtocolVariant } from './asyncapi.js';
 import type { GraphQLOptions } from './graphql.js';
 import type { Events } from './events.js';
 import type { CodeSamplesConfig } from './code-samples-config.js';
+import type { Translations } from '../utils/translations.js';
 
 export type * from './code-samples-config.js';
 
@@ -83,6 +84,9 @@ export type ApiDocsOptions = {
   protocol?: ProtocolVariant;
   scrollYOffset: () => number;
   hideLoading: boolean;
+  hidePageActions: boolean;
+  maxDisplayedOperations: number;
+  expandGroups: boolean;
   skipBundle: boolean;
   basePath: string;
   specType: ApiSpecType;
@@ -104,6 +108,14 @@ export type RawApiDocsOptions = EditionRedocConfig &
     hideSchemaPattern?: boolean;
     disableTelemetry?: boolean;
     requiredPropsFirst?: boolean; // alias of `sortRequiredPropsFirst`
+    /** UI text by translation key; keys left out keep the built-in English text. */
+    translations?: Translations | string;
+    /** Hides the Copy / Open in ChatGPT / Open in Claude menu next to page headings. */
+    hidePageActions?: boolean;
+    /** Operations a tag lists before "Show N more..."; `'all'` lists every one. Default 8. */
+    maxDisplayedOperations?: number | 'all';
+    /** Renders every tag with its operations open, as if each "+ Show" had been clicked. */
+    expandGroups?: boolean;
     protocol?: ProtocolVariant;
     layout?:
       | EditionRedocConfig['layout']

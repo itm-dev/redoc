@@ -8,6 +8,7 @@ import type { RouteItem, RouteIndex, TopLevelEntry } from '../utils/routing.js';
 import { ThreePanelLayout } from '@redocly/theme/layouts/ThreePanelLayout';
 
 import { layoutAtom, collapsedSidebarAtom } from '../jotai/app.js';
+import { globalOptionsAtom } from '../jotai/store.js';
 import { contentType } from '../types/common.js';
 import { markSectionRendered } from '../components/common/LazySection.js';
 import { NotFoundPage } from './NotFoundPage.js';
@@ -41,6 +42,7 @@ type EntryPageProps = {
 function EntryPageComponent({ routeIndex, basePath }: EntryPageProps): ReactElement {
   const layout = useAtomValue(layoutAtom);
   const collapsedSidebar = useAtomValue(collapsedSidebarAtom);
+  const { expandGroups } = useAtomValue(globalOptionsAtom);
   const location = useLocation();
   const isHydrated = useIsHydrated();
 
@@ -107,7 +109,9 @@ function EntryPageComponent({ routeIndex, basePath }: EntryPageProps): ReactElem
             eagerOpSlug={entry.children.find((c) => eagerSlugs.has(c.path))?.path ?? null}
             opsStartIndex={opsStartIndex}
             renderEntrySection={renderEntrySection}
+            expandGroups={expandGroups}
             shouldRenderOps={
+              expandGroups ||
               entry.sectionId === activePath ||
               entry.children.some((c) => c.path === activePath) ||
               (entry.children.length > 0 && entry.content.contentType !== contentType.GROUP)

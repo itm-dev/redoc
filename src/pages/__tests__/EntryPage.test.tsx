@@ -292,6 +292,25 @@ describe('EntryPage', () => {
       expect(mapperSlugsIn(slugs['/pets'])).toEqual(['/pets']);
     });
 
+    it('with expandGroups, an out-of-scope tag renders its ops as placeholders', () => {
+      const root = makeRoute('/');
+      const tag = makeRoute('/pets');
+      const op1 = makeRoute('/pets/get-pets');
+      const op2 = makeRoute('/pets/create-pet');
+
+      const routeIndex = makeTagRouteIndex(root, tag, [op1, op2]);
+      renderEntry(routeIndex, '/', '/', { expandGroups: true });
+
+      const slugs = lazySectionsBySlug();
+      expect(Object.keys(slugs).sort()).toEqual([
+        '/',
+        '/pets',
+        '/pets/create-pet',
+        '/pets/get-pets',
+      ]);
+      expect(slugs['/pets/get-pets']?.getAttribute('data-eager')).toBe('false');
+    });
+
     it('keeps an OUT-OF-SCOPE channel’s operations mounted as placeholders (asyncapi scroll stack)', () => {
       // A channel (content type ITEM/CHANNEL, not a GROUP tag hub) keeps its
       // operations in the DOM even when out of scope, so scrolling into a

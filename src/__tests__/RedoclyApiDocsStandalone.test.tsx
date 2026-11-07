@@ -46,6 +46,20 @@ afterEach(() => {
   cleanup();
 });
 
+describe('standalone translations', () => {
+  it('shows the text from the `translations` option', async () => {
+    await renderStandalone({ translations: { loading: 'Загрузка...' } });
+
+    expect(screen.getByText('Загрузка...')).toBeInTheDocument();
+  });
+
+  it('keeps the built-in text without the option', async () => {
+    await renderStandalone();
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+});
+
 describe('standalone sidebar logo', () => {
   it('renders the graphql `apiLogo` option', async () => {
     const container = await renderStandalone({ apiLogo: API_LOGO });

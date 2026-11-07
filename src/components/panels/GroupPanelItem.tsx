@@ -14,9 +14,8 @@ import { NavigationBadge, TextBadge } from '../common/Badge.js';
 import { useSpecTranslate } from '../../hooks/useTranslate.js';
 import { resolveText } from '../../utils/resolveText.js';
 import { useNavigationUrlNormalizer } from '../../hooks/useNormalizeUrl.js';
-import { specTypeAtom } from '../../jotai/store.js';
-
-const MAX_OPERATIONS = 8;
+import { globalOptionsAtom, specTypeAtom } from '../../jotai/store.js';
+import { DEFAULT_MAX_DISPLAYED_OPERATIONS } from '../../options/constants.js';
 
 type GroupPanelEntry = GroupItemNode['children'][0]['items'][number];
 type ResolvedEntry = GroupPanelEntry & { href: string };
@@ -105,6 +104,8 @@ export function GroupPanelItem({ node }: { node: GroupItemNode }): ReactElement 
   const normalizeUrl = useNavigationUrlNormalizer();
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const maxDisplayedOperations =
+    useAtomValue(globalOptionsAtom).maxDisplayedOperations ?? DEFAULT_MAX_DISPLAYED_OPERATIONS;
 
   // Pre-translate labels — `translate` is unstable across renders and would
   // break the memo on `GroupOperationRow` if passed as a prop.
@@ -134,10 +135,12 @@ export function GroupPanelItem({ node }: { node: GroupItemNode }): ReactElement 
   );
 
   const showMoreCount =
-    !isExpanded && paginatedTotal > MAX_OPERATIONS ? paginatedTotal - MAX_OPERATIONS : 0;
+    !isExpanded && paginatedTotal > maxDisplayedOperations
+      ? paginatedTotal - maxDisplayedOperations
+      : 0;
 
   const { operationSections, childTagSections } = useMemo(() => {
-    let remaining = isExpanded ? Infinity : MAX_OPERATIONS;
+    let remaining = isExpanded ? Infinity : maxDisplayedOperations;
     const operationSections: ResolvedSection[] = [];
     const childTagSections: ResolvedSection[] = [];
     for (const section of sections) {
@@ -151,7 +154,7 @@ export function GroupPanelItem({ node }: { node: GroupItemNode }): ReactElement 
       if (items.length > 0) operationSections.push({ ...section, items });
     }
     return { operationSections, childTagSections };
-  }, [sections, isExpanded]);
+  }, [sections, isExpanded, maxDisplayedOperations]);
 
   return (
     <Wrapper $isStacked={true} data-testid="items-navigation-list">

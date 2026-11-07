@@ -69,14 +69,19 @@ vi.mock('@redocly/theme/components/Button/Button', () => ({
 
 const EMPTY_API_STORE: ApiStore = { schemaStore: {}, exampleStore: {}, securitySchemeStore: {} };
 
-function renderGroupPage(content: ApiItemContent, isExpanded = true, sectionId?: string) {
+function renderGroupPage(
+  content: ApiItemContent,
+  isExpanded = true,
+  sectionId?: string,
+  options: Partial<ApiDocsOptions> = {},
+) {
   useIsExpandedSpy.mockReturnValue(isExpanded);
 
   const store = createStore();
   store.set(globalStoreAtom, {
     items: [],
     store: EMPTY_API_STORE,
-    options: { basePath: '/docs' } as ApiDocsOptions,
+    options: { basePath: '/docs', ...options } as ApiDocsOptions,
   });
 
   return render(
@@ -140,6 +145,19 @@ describe('GroupPage', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/normalized/api/pets/list', {
       state: { expandInPlace: true },
     });
+  });
+
+  it('renders a group open with expandGroups, without the collapsed CTA', () => {
+    const content = {
+      children: [
+        { nodeType: 'paragraph' },
+        { nodeType: 'container', panels: [{ children: [{ kind: 'group-items', items: [] }] }] },
+      ],
+    } as unknown as ApiItemContent;
+
+    renderGroupPage(content, false, undefined, { expandGroups: true });
+
+    expect(screen.queryByText('+ Show')).not.toBeInTheDocument();
   });
 
   it('does not show the collapsed CTA for a leaf group with no navigation panel', () => {

@@ -14,11 +14,15 @@ import { apiSpecType, panelKind } from '../../../types/common.js';
 const mocks = vi.hoisted(() => ({
   normalizeUrl: vi.fn((href: string) => href),
   specType: 'openapi' as ApiSpecType,
+  maxDisplayedOperations: undefined as number | undefined,
 }));
 
 vi.mock('../../../jotai/store.js', async () => {
   const { atom } = await import('jotai');
-  return { specTypeAtom: atom(() => mocks.specType) };
+  return {
+    specTypeAtom: atom(() => mocks.specType),
+    globalOptionsAtom: atom(() => ({ maxDisplayedOperations: mocks.maxDisplayedOperations })),
+  };
 });
 vi.mock('@redocly/theme/components/Tag/Tag', () => ({
   Tag: ({ children, textTransform }: { children: ReactNode; textTransform?: string }) => (
@@ -73,6 +77,7 @@ afterEach(() => {
   vi.clearAllMocks();
   mocks.normalizeUrl.mockImplementation((href: string) => href);
   mocks.specType = apiSpecType.OPENAPI;
+  mocks.maxDisplayedOperations = undefined;
 });
 
 function renderInRouter(ui: ReactElement) {
@@ -169,6 +174,31 @@ it('should show only 8 items when there are more than 8', () => {
   expect(screen.queryByText('item-8')).not.toBeInTheDocument();
   expect(screen.getByTestId('show-more-operations')).toBeInTheDocument();
 });
+
+it.each([
+  [3, 3, true],
+  [Infinity, 12, false],
+])(
+  'shows %s items with maxDisplayedOperations, then the show more button: %s',
+  (maxDisplayedOperations, shown, hasShowMore) => {
+    mocks.maxDisplayedOperations = maxDisplayedOperations;
+    const items = Array.from({ length: 12 }, (_, i) => createItem(`item-${i}`));
+    // a fresh store: the mocked options atom is read once per store
+    renderInRouter(
+      <Provider store={createStore()}>
+        <GroupPanelItem
+          {...createNode({
+            children: [{ kind: panelKind.GROUP_ITEMS, title: 'Operations', items }],
+          })}
+        />
+      </Provider>,
+    );
+
+    expect(screen.getByText(`item-${shown - 1}`)).toBeInTheDocument();
+    expect(screen.queryByText(`item-${shown}`)).not.toBeInTheDocument();
+    expect(Boolean(screen.queryByTestId('show-more-operations'))).toBe(hasShowMore);
+  },
+);
 
 it('should display the count of hidden items in the show more button', () => {
   const items = Array.from({ length: 11 }, (_, i) => createItem(`item-${i}`));
