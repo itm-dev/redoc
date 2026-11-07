@@ -37,7 +37,7 @@ function buildStamp() {
 
 const MODIFIED_NOTE = (stamp) => `/*!
  * Modified build of Redoc by AdvantShop: https://github.com/itm-dev/redoc (${stamp}).
- * Adds the \`translations\` and \`hidePageActions\` options; see ADVANTSHOP.md in the fork.
+ * Adds options for the AdvantShop admin; see ADVANTSHOP.md in the fork.
  */
 `;
 
