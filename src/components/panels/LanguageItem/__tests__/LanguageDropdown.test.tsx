@@ -1,7 +1,12 @@
 import { it, expect, vi, afterEach } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+import { createStore, Provider as JotaiProvider } from 'jotai';
 
+import type { ReactElement } from 'react';
+import type { ApiDocsOptions } from '../../../../types/options.js';
+
+import { globalOptionsAtom } from '../../../../jotai/store.js';
 import { TelemetryContext } from '../../../../contexts/telemetry.js';
 import { LanguageDropdown } from '../LanguageDropdown.js';
 
@@ -47,6 +52,47 @@ it('should render just the trigger for a single sample and a full dropdown for m
     />,
   );
   expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
+});
+
+function renderWithOptions(options: Partial<ApiDocsOptions>, ui: ReactElement) {
+  const store = createStore();
+  store.set(globalOptionsAtom, options as ApiDocsOptions);
+  return render(<JotaiProvider store={store}>{ui}</JotaiProvider>);
+}
+
+const PAYLOAD_SAMPLE = { key: 'payload', title: 'Payload', lang: 'json' };
+
+it('should show the label of a lone Payload sample by default', () => {
+  renderWithOptions(
+    {},
+    <LanguageDropdown samples={[PAYLOAD_SAMPLE]} activeTab="payload" onChange={vi.fn()} />,
+  );
+  expect(screen.getByText('Payload')).toBeInTheDocument();
+});
+
+it('should hide the label of a lone Payload sample with hidePayloadLabel', () => {
+  const { container } = renderWithOptions(
+    { hidePayloadLabel: true },
+    <LanguageDropdown samples={[PAYLOAD_SAMPLE]} activeTab="payload" onChange={vi.fn()} />,
+  );
+  expect(container).toBeEmptyDOMElement();
+});
+
+it('should keep other labels and the dropdown with hidePayloadLabel', () => {
+  const python = { key: 'Python', title: 'Python', lang: 'Python' };
+  const { unmount } = renderWithOptions(
+    { hidePayloadLabel: true },
+    <LanguageDropdown samples={[python]} activeTab="Python" onChange={vi.fn()} />,
+  );
+  expect(screen.getByText('Python')).toBeInTheDocument();
+  unmount();
+
+  renderWithOptions(
+    { hidePayloadLabel: true },
+    <LanguageDropdown samples={[PAYLOAD_SAMPLE, python]} activeTab="payload" onChange={vi.fn()} />,
+  );
+  expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
+  expect(screen.getByTestId('dropdown-trigger')).toHaveTextContent('Payload');
 });
 
 it('should call onChange with the selected language key', () => {

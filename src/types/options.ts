@@ -87,6 +87,8 @@ export type ApiDocsOptions = {
   hidePageActions: boolean;
   maxDisplayedOperations: number;
   expandGroups: boolean;
+  hideRequestTitle: boolean;
+  hidePayloadLabel: boolean;
   skipBundle: boolean;
   basePath: string;
   specType: ApiSpecType;
@@ -116,6 +118,10 @@ export type RawApiDocsOptions = EditionRedocConfig &
     maxDisplayedOperations?: number | 'all';
     /** Renders every tag with its operations open, as if each "+ Show" had been clicked. */
     expandGroups?: boolean;
+    /** Hides the "Request" heading of an operation; its "Expand all" button stays. */
+    hideRequestTitle?: boolean;
+    /** Hides the "Payload" label of a sample panel that has no other language to switch to. */
+    hidePayloadLabel?: boolean;
     protocol?: ProtocolVariant;
     layout?:
       | EditionRedocConfig['layout']

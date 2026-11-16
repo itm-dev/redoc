@@ -15,7 +15,7 @@ import { breakpoints } from '@redocly/theme/core/openapi';
 
 import { useSpecTranslate } from '../../hooks/useTranslate.js';
 import { resolveText } from '../../utils/resolveText.js';
-import { routingBasePathAtom, specTypeAtom } from '../../jotai/store.js';
+import { globalOptionsAtom, routingBasePathAtom, specTypeAtom } from '../../jotai/store.js';
 import { GraphQLHeaderExtras } from '../graphql/GraphQLHeaderExtras.js';
 import { StyledBadge, TextBadge, renderPropertyBadge } from '../common/Badge.js';
 import { DeepLinkAnchor, deepLinkHoverReveal } from '../common/DeepLinkAnchor.js';
@@ -57,6 +57,8 @@ function HeaderItemComponent({ node, path, parentNode }: HeaderItemProps): React
     isWebhook,
   } = node;
   const specType = useAtomValue(specTypeAtom);
+  const { hideRequestTitle } = useAtomValue(globalOptionsAtom);
+  const hideTitle = hideRequestTitle && level === 4 && deepLinkSuffix === 'request';
   const translate = useSpecTranslate();
   const isGraphQL = specType === apiSpecType.GRAPHQL;
   const showDeprecated = deprecated || (isGraphQL && graphqlDeprecated);
@@ -156,6 +158,9 @@ function HeaderItemComponent({ node, path, parentNode }: HeaderItemProps): React
   ]);
 
   const spacingBeforeResponsesSection = !isGraphQL && level === 4 && deepLinkSuffix === 'responses';
+  const showExpandAll = expandableKeys.length > 0 && hasRenderedCollapsibles && !!itemId;
+
+  if (hideTitle && !showExpandAll) return null;
 
   return (
     <>
@@ -180,7 +185,7 @@ function HeaderItemComponent({ node, path, parentNode }: HeaderItemProps): React
               )}
             </GqlTitleWithArgs>
           ) : (
-            renderHeader
+            !hideTitle && renderHeader
           )}
           {responseCodes && responseCodes.length > 0 && (
             <HeaderResponseCodeTabs
@@ -189,9 +194,7 @@ function HeaderItemComponent({ node, path, parentNode }: HeaderItemProps): React
               firstCode={firstCode}
             />
           )}
-          {expandableKeys.length > 0 && hasRenderedCollapsibles && itemId && (
-            <ExpandAllButton itemId={itemId} deepLinkKeys={expandableKeys} />
-          )}
+          {showExpandAll && <ExpandAllButton itemId={itemId} deepLinkKeys={expandableKeys} />}
         </HeadingMainArea>
         {showPageActions && (
           <HeaderPageActionsSlot>

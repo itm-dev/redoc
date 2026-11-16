@@ -31,6 +31,8 @@ describe('normalizeOptions', () => {
       expect(result.hidePageActions).toBe(false);
       expect(result.maxDisplayedOperations).toBe(8);
       expect(result.expandGroups).toBe(false);
+      expect(result.hideRequestTitle).toBe(false);
+      expect(result.hidePayloadLabel).toBe(false);
       expect(result.hideSchemaTitles).toBe(false);
       expect(result.sortRequiredPropsFirst).toBe(false);
       expect(result.onlyRequiredInSamples).toBe(false);
@@ -109,6 +111,8 @@ describe('normalizeOptions', () => {
         makeOpenApiRaw({
           hideDownloadButtons: true,
           hidePageActions: true,
+          hideRequestTitle: true,
+          hidePayloadLabel: true,
           hideSchemaTitles: true,
           onlyRequiredInSamples: true,
           sortRequiredPropsFirst: true,
@@ -117,6 +121,8 @@ describe('normalizeOptions', () => {
       );
       expect(result.hideDownloadButtons).toBe(true);
       expect(result.hidePageActions).toBe(true);
+      expect(result.hideRequestTitle).toBe(true);
+      expect(result.hidePayloadLabel).toBe(true);
       expect(result.hideSchemaTitles).toBe(true);
       expect(result.onlyRequiredInSamples).toBe(true);
       expect(result.sortRequiredPropsFirst).toBe(true);

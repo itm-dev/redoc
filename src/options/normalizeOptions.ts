@@ -50,6 +50,8 @@ export function normalizeOptions(rawOptions: RawApiDocsOptions): ApiDocsOptions 
       argValueToExpandLevel(options.maxDisplayedOperations, DEFAULT_MAX_DISPLAYED_OPERATIONS) ??
       DEFAULT_MAX_DISPLAYED_OPERATIONS,
     expandGroups: argValueToBoolean(options.expandGroups, false),
+    hideRequestTitle: argValueToBoolean(options.hideRequestTitle, false),
+    hidePayloadLabel: argValueToBoolean(options.hidePayloadLabel, false),
     hideSchemaTitles: argValueToBoolean(options.hideSchemaTitles, false),
     hideSchemaPattern: argValueToBoolean(options.hideSchemaPattern, false),
     maxDisplayedEnumValues: argValueToNumber(

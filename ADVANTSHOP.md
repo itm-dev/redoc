@@ -16,6 +16,10 @@ AdvantShop (`AdvantShop.Web/Areas/Admin/Views/SettingsApi/ManagementApi.cshtml`)
   По умолчанию 8, как в исходном Redoc.
 - `expandGroups` — все разделы сразу раскрыты, как после «+ Show». Операции при этом монтируются
   лениво, по мере прокрутки.
+- `hideRequestTitle` — скрывает заголовок «Request» у операции. Кнопка «Expand all» этой секции
+  остаётся, если в запросе есть что раскрывать.
+- `hidePayloadLabel` — скрывает подпись «Payload» в шапке панели примера, когда других языков
+  у панели нет и переключать нечего.
 
 Вложенные поля схем раскрывает уже существующая опция `schemasExpansionLevel` (`'all'` — все уровни).
 
@@ -27,6 +31,8 @@ AdvantShop (`AdvantShop.Web/Areas/Admin/Views/SettingsApi/ManagementApi.cshtml`)
 - `src/utils/translations.ts` — словарь, хуки `useTranslate` и `useTranslationKeys`;
 - `src/RedoclyApiDocsStandalone.tsx` — хуки уходят в `ThemeDataContext`;
 - `src/components/Header/HeaderPageActions.tsx` — `hidePageActions`;
+- `src/components/Header/HeaderItem.tsx` — `hideRequestTitle`;
+- `src/components/panels/LanguageItem/LanguageDropdown.tsx` — `hidePayloadLabel`;
 - `src/components/panels/GroupPanelItem.tsx` — `maxDisplayedOperations`;
 - `src/pages/EntryPage.tsx`, `src/pages/TopLevelEntryView.tsx`, `src/pages/GroupPage.tsx` — `expandGroups`;
 - `src/types/options.ts`, `src/options/normalizeOptions.ts` — сами опции;
@@ -95,4 +101,5 @@ node scripts/advantshop/build.mjs ../Advantshop_dev/AdvantShop.Web/Areas/Admin/C
   (`actions.show`, `array`, `properties`), и в русском из них не собрать фразу с правильным склонением.
   В админке их не видно: всё раскрыто опциями.
 - Вкладка «Payload» у примеров запроса: её подпись — название «языка» в `codeSamples`, а по нему
-  же находится сама вкладка.
+  же находится сама вкладка. В админке её не видно: других языков нет, и подпись скрыта опцией
+  `hidePayloadLabel`.

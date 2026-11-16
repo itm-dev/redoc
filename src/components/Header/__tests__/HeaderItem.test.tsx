@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router';
 
 import type { GlobalStoreAtom } from '../../../jotai/store.js';
 import type { ContainerNode, HeaderNode } from '../../../types/content.js';
+import type { RawApiDocsOptions } from '../../../types/options.js';
 
 import { nodeTypes } from '../../../types/common.js';
 import { globalStoreAtom } from '../../../jotai/store.js';
@@ -15,7 +16,7 @@ import { HeaderItem } from '../HeaderItem.js';
 
 const ITEM_ID = 'pets/list-pets';
 
-function createGlobalStore() {
+function createGlobalStore(options: Partial<RawApiDocsOptions> = {}) {
   const store = createStore();
   store.set(globalStoreAtom, {
     items: [],
@@ -25,7 +26,8 @@ function createGlobalStore() {
       downloadUrls: [],
       metadata: {},
       basePath: '',
-    }),
+      ...options,
+    } as RawApiDocsOptions),
   } as GlobalStoreAtom);
   return store;
 }
@@ -166,6 +168,47 @@ describe('HeaderItem', () => {
     );
     expect(buttonLabels).not.toContain('Expand all');
     expect(buttonLabels).not.toContain('Collapse all');
+  });
+
+  describe('hideRequestTitle', () => {
+    const requestHeader = { level: 4, label: 'Request', deepLinkSuffix: 'request' };
+
+    it('renders nothing for the request header', () => {
+      const { container } = renderHeader(requestHeader, {
+        store: createGlobalStore({ hideRequestTitle: true }),
+      });
+
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('keeps the Expand all button of the request section without the title', () => {
+      const store = createGlobalStore({ hideRequestTitle: true });
+      store.set(itemStoreAtom(ITEM_ID), {
+        expandableSections: { ['t=request&ct=application/json']: undefined },
+        collapsibles: { ['t=request&ct=application/json#:r1:']: false },
+      });
+
+      const { container } = renderHeader(requestHeader, { store });
+
+      expect(container.querySelector('h4')).toBeNull();
+      expect(screen.queryByText('Request')).not.toBeInTheDocument();
+      expect(screen.getByTestId('schema-expand-all-button')).toBeInTheDocument();
+    });
+
+    it('leaves the other headers in place', () => {
+      renderHeader(
+        { level: 4, label: 'Responses', deepLinkSuffix: 'responses' },
+        { store: createGlobalStore({ hideRequestTitle: true }), responseCodes: ['200'] },
+      );
+
+      expect(screen.getByText('Responses')).toBeInTheDocument();
+    });
+
+    it('shows the request header when the option is off', () => {
+      renderHeader(requestHeader);
+
+      expect(screen.getByText('Request')).toBeInTheDocument();
+    });
   });
 
   it('renders the protocol tag as a sibling before the header wrapper when protocolTag is set', () => {

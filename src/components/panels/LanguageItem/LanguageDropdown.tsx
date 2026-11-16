@@ -1,10 +1,12 @@
 import { useCallback, useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 
 import type { ReactElement } from 'react';
 import type { TabType } from '../../../jotai/app.js';
 
 import { Dropdown } from '@redocly/theme/components/Dropdown/Dropdown';
 
+import { globalOptionsAtom } from '../../../jotai/store.js';
 import { RESOURCES, languageOf, useTelemetry } from '../../../telemetry/index.js';
 import { LanguageItem } from './LanguageItem.js';
 import {
@@ -34,7 +36,8 @@ export const LanguageDropdown = ({
   withArrow = true,
   withCheckmark = true,
   withIcon = true,
-}: LanguageDropdownProps): ReactElement => {
+}: LanguageDropdownProps): ReactElement | null => {
+  const { hidePayloadLabel } = useAtomValue(globalOptionsAtom);
   const telemetry = useTelemetry();
   const handleAction = useCallback(
     (value: TabType<{ lang: string }>) => () => {
@@ -73,6 +76,7 @@ export const LanguageDropdown = ({
   const activeSample = samples.find(({ key }) => key === activeTab);
 
   if (items.length <= 1) {
+    if (!trigger && hidePayloadLabel && activeSample?.key === 'payload') return null;
     return trigger ?? <StaticLanguageLabel>{activeSample?.title}</StaticLanguageLabel>;
   }
 
